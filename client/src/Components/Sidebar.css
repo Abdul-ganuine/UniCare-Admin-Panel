@@ -31,12 +31,12 @@
   text-decoration: none;
 }
 .sidebar_link:hover {
-  background: green;
+  background: #399918;
   color: white;
   transition: all 0.5s;
 }
 .active {
-  background: green;
+  background: #399918;
   color: white;
 }
 .icon,
