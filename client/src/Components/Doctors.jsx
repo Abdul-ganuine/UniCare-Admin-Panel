@@ -40,7 +40,7 @@ function Doctors() {
         dispatch(hideLoading());
       })
       .catch((err) => console.log(err));
-  }, []);
+  }, [dispatch]);
 
   const column = [
     {

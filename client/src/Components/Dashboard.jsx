@@ -13,8 +13,7 @@ import { hideLoading, showLoading } from "../redux/alertSlice.js";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 
-function Dashboard({ a }) {
-  console.log(a);
+function Dashboard() {
   const [numofDoctors, setNumOfDoctors] = useState("");
   const [numofCounsellors, setNumOfCounsellors] = useState("");
   const [numofStudents, setNumOfStudents] = useState("");

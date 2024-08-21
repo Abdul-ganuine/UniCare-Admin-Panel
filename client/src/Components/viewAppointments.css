@@ -14,3 +14,13 @@
 .reject {
   border: none;
 }
+.approve {
+  padding: 12px 10px;
+  background-color: green;
+  color: white;
+}
+.reject {
+  padding: 12px 10px;
+  background-color: red;
+  color: white;
+}

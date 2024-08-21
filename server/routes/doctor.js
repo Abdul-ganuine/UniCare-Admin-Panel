@@ -8,7 +8,9 @@ const {
   updateUser,
   getAllUsers,
   changePassword,
+  getDoctorAppointments,
 } = require("./../controllers/doctorController.js");
+const middleware = require("../MiddleWare/authMiddleware.js");
 
 /*Api for fetching all doctor */
 router.route("/getDoctors").get(getAllDoctors);
@@ -20,5 +22,8 @@ router.route("/UserInfo/:id").get(getUser);
 router.route("/updateUserInfo/:id").put(updateUser);
 router.route("/getStudentUsers").get(getAllUsers);
 router.route("/changePassword").post(changePassword);
+router
+  .route("/getAppointmentsByDoctorId")
+  .get(middleware, getDoctorAppointments);
 
 module.exports = router;

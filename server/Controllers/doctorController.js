@@ -1,6 +1,8 @@
 const User = require("../Models/Users.js");
 const StudentUsers = require("../Models/studentUsers.js");
 const bcrypt = require("bcryptjs");
+const Appointment = require("../Models/AppointmentModel.js");
+const Student = require("../Models/studentUsers.js");
 
 const getAllDoctors = async (req, res) => {
   try {
@@ -21,6 +23,25 @@ const deleteDoctor = async (req, res) => {
     res.json(deletedDoctor);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+const getDoctorAppointments = async (req, res) => {
+  try {
+    const doctor = await User.findOne({
+      _id: req.body.userId,
+    });
+    const appointments = await Appointment.find({ doctorId: doctor._id });
+    res.status(200).send({
+      message: "Appointments fetch sucessfully",
+      status: true,
+      data: appointments,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: "Error fetching appointments",
+      status: false,
+    });
   }
 };
 
@@ -109,4 +130,5 @@ module.exports = {
   getUser,
   getAllUsers,
   changePassword,
+  getDoctorAppointments,
 };
