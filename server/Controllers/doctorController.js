@@ -66,12 +66,18 @@ const getAllUsers = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    const { id, oldPassword, newPassword } = req.body;
+    const { id, oldPassword, newPassword, confrimPassword } = req.body;
 
     if (!id || !oldPassword || !newPassword) {
       return res
         .status(400)
         .json({ status: false, message: "Please provide all required fields" });
+    }
+    if (newPassword !== confrimPassword) {
+      return res.json({
+        status: false,
+        message: "New password fields do not match.",
+      });
     }
 
     const user = await User.findOne({ _id: id });

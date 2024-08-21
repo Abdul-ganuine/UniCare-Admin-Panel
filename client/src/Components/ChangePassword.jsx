@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 function ChangePassword() {
   const [newPassword, setNewPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
+  const [confrimPassword, setConfrimPassword] = useState("");
 
   const { user } = useSelector((state) => state.user);
   const id = user.id;
@@ -24,6 +25,10 @@ function ChangePassword() {
     setNewPassword(e.target.value);
   };
 
+  const handleConfirmNewPasswordChange = (e) => {
+    setConfrimPassword(e.target.value);
+  };
+
   function handleSubmit(e) {
     e.preventDefault();
     dispatch(showLoading());
@@ -31,6 +36,7 @@ function ChangePassword() {
       .post("http://localhost:3000/panel/changePassword", {
         oldPassword,
         newPassword,
+        confrimPassword,
         id,
       })
       .then((res) => {
@@ -82,6 +88,17 @@ function ChangePassword() {
                 id="confirmPassword"
                 value={newPassword}
                 onChange={handleConfirmPasswordChange}
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="confirmPassword">Confrim New Password</label>
+            <div className="password-input-container">
+              <input
+                type="password"
+                id="confirmPassword"
+                value={confrimPassword}
+                onChange={handleConfirmNewPasswordChange}
               />
             </div>
           </div>
