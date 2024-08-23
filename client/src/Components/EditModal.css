@@ -64,3 +64,12 @@
   color: white;
   border: none;
 }
+@media (max-width: 900px) {
+  .edit-modal {
+    width: 90%;
+    margin: 0 auto;
+  }
+  .edit-modal-edit-form {
+    width: 100%;
+  }
+}

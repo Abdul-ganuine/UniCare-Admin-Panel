@@ -33,7 +33,7 @@ const getDoctorAppointments = async (req, res) => {
     });
     const appointments = await Appointment.find({ doctorId: doctor._id });
     res.status(200).send({
-      message: "Appointments fetch sucessfully",
+      message: "Appointments fetch sucessfully.",
       status: true,
       data: appointments,
     });
@@ -123,6 +123,37 @@ const changePassword = async (req, res) => {
     res.json({ status: false, message: "Something went wrong" });
   }
 };
+
+const changeAppointmentStatus = async (req, res) => {
+  try {
+    const { appointmentId, status } = req.body;
+    const appointment = await Appointment.findByIdAndUpdate(appointmentId, {
+      status,
+    });
+    const userId = appointment.userId;
+
+    const user = await StudentUsers.findOne({ _id: userId });
+
+    // const unSeenNotifications = user.unSeenNotifications;
+    // unSeenNotifications.push({
+    //   type: "appointment-status-change",
+    //   message: `Your appointment has been ${status}`,
+    //   onClickPath: "/appointment",
+    // });
+    await user.save();
+    res.status(200).send({
+      message: "Appointment status updated successfully.",
+      status: true,
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      message: "Appointment status update failed.",
+      status: false,
+    });
+  }
+};
+
 module.exports = {
   getAllDoctors,
   deleteDoctor,
@@ -131,4 +162,5 @@ module.exports = {
   getAllUsers,
   changePassword,
   getDoctorAppointments,
+  changeAppointmentStatus,
 };

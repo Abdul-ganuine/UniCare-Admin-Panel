@@ -85,9 +85,6 @@ function Counsellors() {
       name: "Action",
       selector: (row) => (
         <div className="btn-container">
-          {/* <button className="edit" onClick={() => handleOpenEditModal(row._id)}>
-            Edit
-          </button> */}
           <button className="delete" onClick={() => handleDelete(row._id)}>
             Delete
           </button>
@@ -113,6 +110,8 @@ function Counsellors() {
             data={formattedData}
             title="Available Counsellors"
             pagination
+            paginationPerPage={10}
+            paginationRowsPerPageOptions={[10, 15, 20, 25]}
             pointerOnHover
             highlightOnHover
             fixedHeader

@@ -61,13 +61,6 @@ const registerUser = async (req, res) => {
     };
     const timeRange = splitTimings(timings);
 
-    // if (!Array.isArray(timings) || timings.length !== 2) {
-    //   return res.status(200).json({
-    //     status: false,
-    //     message: "Timings must be an array with two items.",
-    //   });
-    // }
-
     const hashpassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       first_name,

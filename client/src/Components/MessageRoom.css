@@ -5,12 +5,20 @@
   background-color: #e2e9ef;
   height: 100%;
 }
+.chat-welcome {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 25px;
+  background-color: white;
+  border: 1px solid #4a8b4d;
+}
 .message-room-top {
   display: flex;
   padding: 20px;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #ecffe6;
+  border-bottom: 1px solid #4a8b4d;
 }
 .userDetails {
   display: flex;

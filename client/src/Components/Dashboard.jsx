@@ -12,16 +12,42 @@ import { useRole } from "./../Context/RoleProvider.jsx";
 import { hideLoading, showLoading } from "../redux/alertSlice.js";
 import { useDispatch } from "react-redux";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function Dashboard() {
   const [numofDoctors, setNumOfDoctors] = useState("");
   const [numofCounsellors, setNumOfCounsellors] = useState("");
   const [numofStudents, setNumOfStudents] = useState("");
-  const [appointments, setAppointments] = useState(1);
+  const [noOfAppointments, setNoOfAppointments] = useState(0);
   const [users, setUsers] = useState(2);
   const [newMessages, setNewMessages] = useState(3);
   const dispatch = useDispatch();
   const role = useRole();
+
+  const getAppointments = async () => {
+    try {
+      dispatch(showLoading());
+      const res = await axios.get(
+        "http://localhost:3000/panel/getAppointmentsByDoctorId",
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      );
+      dispatch(hideLoading());
+
+      if (res.data.status) {
+        const data = res.data.data;
+        setNoOfAppointments(data.length);
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      dispatch(hideLoading());
+      toast.error("Failed to fetch appointments");
+    }
+  };
 
   useEffect(() => {
     dispatch(showLoading());
@@ -55,6 +81,10 @@ function Dashboard() {
       .catch((err) => dispatch(hideLoading()));
   }, [dispatch]);
 
+  useEffect(() => {
+    getAppointments();
+  }, []);
+
   const adminDetails = [
     {
       img: doctorImg,
@@ -75,13 +105,13 @@ function Dashboard() {
   const healthProfessionalDetails = [
     {
       img: calender,
-      number: appointments,
+      number: noOfAppointments,
       description: "Appointments",
     },
     {
       img: user,
       number: users,
-      description: "Counsellors",
+      description: "Student",
     },
     {
       img: message,

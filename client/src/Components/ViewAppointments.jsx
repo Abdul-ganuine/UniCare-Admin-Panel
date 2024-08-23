@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./Doctors.css";
 import DataTable from "react-data-table-component";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "../redux/alertSlice";
 import { toast } from "react-toastify";
 import moment from "moment";
@@ -32,7 +32,7 @@ function ViewAppointments() {
         if (data.length === 0) {
           toast.success("You do not have any appointments");
         } else {
-          toast.success(res.data.message);
+          // toast.success(res.data.message);
         }
       } else {
         toast.error(res.data.message);
@@ -43,32 +43,75 @@ function ViewAppointments() {
     }
   };
 
+  const changeAppointmentStatus = async (record, status) => {
+    try {
+      dispatch(showLoading());
+      const res = await axios.post(
+        "http://localhost:3000/panel/changeAppointmentStatus",
+        { appointmentId: record._id, status: status },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      );
+      dispatch(hideLoading());
+      if (res.data.status) {
+        getAppointments();
+        toast.success(res.data.message);
+      } else {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      dispatch(hideLoading());
+      toast.error("Failed to approve appointment.");
+    }
+  };
+
   useEffect(() => {
     getAppointments();
   }, []);
-
+  console.log(appointments);
   const columns = [
     {
       name: "ID",
       selector: (row, index) => index + 1,
       sortable: true,
+      width: "50px",
     },
-    // {
-    //   name: "Patient Name",
-    //   selector: (row) => `${row.first_name} ${row.last_name}`,
-    //   sortable: true,
-    // },
-    // {
-    //   name: "Phone Number",
-    //   selector: (row) => row.number,
-    // },
+    {
+      name: "Picture",
+      selector: (row) => (
+        <img
+          src={`http://localhost:3000/profImages/${row.studentDetails.img}`}
+          alt=""
+          width={50}
+          height={50}
+          style={{ objectFit: "cover", borderRadius: "50%" }}
+          className="row-image"
+        />
+      ),
+    },
+    {
+      name: "Student Name",
+      selector: (row) => row.studentDetails.name,
+      sortable: true,
+    },
+    {
+      name: "Phone Number",
+      selector: (row) => row.studentDetails.contact,
+      width: "130px",
+    },
     {
       name: "Date",
-      selector: (row) => moment(row.date).format("YYYY-MM-DD"),
+      selector: (row) => moment(row.date).format("dddd, MMMM D, YYYY"),
+      sortable: true,
+      width: "210px",
     },
     {
       name: "Time",
-      selector: (row) => row.time,
+      selector: (row) => moment(row.time, "HH:mm").format("h:mm a"), // Formatting the time
+      sortable: true,
     },
     {
       name: "Status",
@@ -79,8 +122,25 @@ function ViewAppointments() {
       name: "Actions",
       selector: (row) => (
         <div className="btn-container">
-          <button className="approve">Approve</button>
-          <button className="reject">Reject</button>
+          {row.status === "pending" && (
+            <>
+              <button
+                className="approve"
+                onClick={() => changeAppointmentStatus(row, "approved")}
+              >
+                Approve
+              </button>
+              <button
+                className="reject"
+                onClick={() => changeAppointmentStatus(row, "rejected")}
+              >
+                Reject
+              </button>
+            </>
+          )}
+          {/* {row.status === "approved" && (
+            <button className="reject">Reject</button>
+          )} */}
         </div>
       ),
     },
@@ -94,6 +154,8 @@ function ViewAppointments() {
           data={appointments}
           title="Available Appointments"
           pagination
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 15, 20, 25]}
           pointerOnHover
           highlightOnHover
           fixedHeader
