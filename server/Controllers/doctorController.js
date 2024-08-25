@@ -45,6 +45,23 @@ const getDoctorAppointments = async (req, res) => {
   }
 };
 
+const getApprovedDoctorAppointments = async (req, res) => {
+  try {
+    const doctor = await User.findOne({
+      _id: req.body.userId,
+    });
+    const appointments = await Appointment.find({ status: "approved" });
+    res.status(200).send({
+      status: true,
+      data: appointments,
+    });
+  } catch (error) {
+    res.status(500).send({
+      status: false,
+    });
+  }
+};
+
 const getUser = async (req, res) => {
   const id = req.params.id;
   await User.findById({ _id: id })
@@ -89,7 +106,7 @@ const changePassword = async (req, res) => {
   try {
     const { id, oldPassword, newPassword, confrimPassword } = req.body;
 
-    if (!id || !oldPassword || !newPassword) {
+    if (!id && !oldPassword && !newPassword) {
       return res
         .status(400)
         .json({ status: false, message: "Please provide all required fields" });
@@ -101,7 +118,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ _id: id });
+    const user = await User.findOne({ _id: id }).select("+password");
     if (!user) {
       return res.status(404).json({ status: false, message: "User not found" });
     }
@@ -163,4 +180,5 @@ module.exports = {
   changePassword,
   getDoctorAppointments,
   changeAppointmentStatus,
+  getApprovedDoctorAppointments,
 };

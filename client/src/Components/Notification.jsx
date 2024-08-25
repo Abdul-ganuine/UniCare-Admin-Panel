@@ -66,7 +66,7 @@ function Notification() {
       key: "1",
       label: "Unseen",
       children: (
-        <>
+        <div className="mark-container">
           <div className="mark">
             <p onClick={() => markAllAsSeen()}>Mark all as seen</p>
           </div>
@@ -77,14 +77,14 @@ function Notification() {
               </p>
             ))}
           </div>
-        </>
+        </div>
       ),
     },
     {
       key: "2",
       label: "Seen",
       children: (
-        <>
+        <div className="mark-container">
           <div className="mark">
             <p onClick={() => deleteAllNotifications()}>Delete all</p>
           </div>
@@ -99,7 +99,7 @@ function Notification() {
               </div>
             ))}
           </div>
-        </>
+        </div>
       ),
     },
   ];

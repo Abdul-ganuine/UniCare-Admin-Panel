@@ -24,11 +24,11 @@ function Dashboard() {
   const dispatch = useDispatch();
   const role = useRole();
 
-  const getAppointments = async () => {
+  const getApprovedAppointments = async () => {
     try {
       dispatch(showLoading());
       const res = await axios.get(
-        "http://localhost:3000/panel/getAppointmentsByDoctorId",
+        "http://localhost:3000/panel/getApprovedAppointments",
         {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token"),
@@ -82,7 +82,7 @@ function Dashboard() {
   }, [dispatch]);
 
   useEffect(() => {
-    getAppointments();
+    getApprovedAppointments();
   }, []);
 
   const adminDetails = [

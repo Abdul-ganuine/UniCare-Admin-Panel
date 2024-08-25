@@ -10,6 +10,7 @@ const {
   changePassword,
   getDoctorAppointments,
   changeAppointmentStatus,
+  getApprovedDoctorAppointments,
 } = require("./../controllers/doctorController.js");
 const middleware = require("../MiddleWare/authMiddleware.js");
 
@@ -27,5 +28,6 @@ router
   .route("/getAppointmentsByDoctorId")
   .get(middleware, getDoctorAppointments);
 router.route("/changeAppointmentStatus").post(changeAppointmentStatus);
+router.route("/getApprovedAppointments").get(getApprovedDoctorAppointments);
 
 module.exports = router;

@@ -71,7 +71,6 @@ function ViewAppointments() {
   useEffect(() => {
     getAppointments();
   }, []);
-  console.log(appointments);
   const columns = [
     {
       name: "ID",

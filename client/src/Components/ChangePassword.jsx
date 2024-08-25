@@ -70,29 +70,29 @@ function ChangePassword() {
         <h2>Change your password</h2>
         <form className="change-password-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="newPassword">Old Password</label>
+            <label htmlFor="oldPassword">Old Password</label>
             <div className="password-input-container">
               <input
                 type="password"
-                id="newPassword"
+                id="oldPassword"
                 value={oldPassword}
                 onChange={handlePasswordChange}
               />
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Enter New Password</label>
+            <label htmlFor="newPassword">Enter New Password</label>
             <div className="password-input-container">
               <input
                 type="password"
-                id="confirmPassword"
+                id="newPassword"
                 value={newPassword}
                 onChange={handleConfirmPasswordChange}
               />
             </div>
           </div>
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confrim New Password</label>
+            <label htmlFor="confrimPassword">Confrim New Password</label>
             <div className="password-input-container">
               <input
                 type="password"
