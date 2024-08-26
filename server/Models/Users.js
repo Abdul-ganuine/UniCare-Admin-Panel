@@ -1,13 +1,33 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = new mongoose.Schema({
-  // username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
+  username: {
+    type: String,
+    maxLength: [20, "user name cannot be more than 30 characters"],
+  },
+  student_id: {
+    type: String,
+    maxLength: [8, "students id can't be more than 8 characters"],
+  },
+  lastSeen: {
+    type: Date,
+    default: new Date(),
+  },
+  online: {
+    type: Boolean,
+    default: false,
+  },
+  hasLoggedOut: {
+    type: Boolean,
+  },
+
+  email: { type: String, unique: true },
   password: { type: String, required: true, unique: true, select: false },
   first_name: String,
   last_name: String,
   number: String,
-  picture: String,
+  img: String,
   role: String,
   seenNotifications: {
     type: Array,
@@ -19,12 +39,18 @@ const UserSchema = new mongoose.Schema({
   },
   specialization: {
     type: String,
-    required: true,
   },
   timings: {
     type: Array,
-    required: true,
   },
 });
+
+UserSchema.methods.createJwt = function () {
+  return jwt.sign(
+    { userId: this.student_id, username: this.username, id: this._id },
+    process.env.JWT_SECRET,
+    { expiresIn: "30d" }
+  );
+};
 
 module.exports = mongoose.model("User", UserSchema);

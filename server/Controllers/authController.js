@@ -45,6 +45,7 @@ const registerUser = async (req, res) => {
     }
 
     const picture = req.file ? req.file.filename : null;
+    console.log(picture);
     const user = await User.findOne({ email });
     if (user) {
       return res.status(200).json({
@@ -60,24 +61,27 @@ const registerUser = async (req, res) => {
       return [];
     };
     const timeRange = splitTimings(timings);
+    const userRole = role;
+    const username = `Dr ${first_name} ${last_name}`;
 
     const hashpassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       first_name,
       number,
       email,
-      picture,
+      img: picture,
       last_name,
       role,
       password: hashpassword,
       timings: timeRange,
       specialization: speciality,
+      username,
     });
 
     await newUser.save();
     return res
       .status(200)
-      .json({ status: true, message: "User Added Successfully" });
+      .json({ status: true, message: "User Added Successfully", userRole });
   } catch (error) {
     res
       .status(500)

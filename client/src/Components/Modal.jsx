@@ -44,7 +44,13 @@ function Modal() {
         if (res.data.status) {
           dispatch(hideLoading());
           toast.success(res.data.message);
-          navigate("/panel");
+          if (res.data.userRole === "doctor") {
+            navigate("/panel/doctor");
+          }
+          if (res.data.userRole === "counsellor") {
+            navigate("/panel/counsellor");
+          }
+          // navigate("/panel");
         } else {
           dispatch(hideLoading());
           toast.error(res.data.message);

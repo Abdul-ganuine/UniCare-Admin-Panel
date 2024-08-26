@@ -47,10 +47,13 @@ const getDoctorAppointments = async (req, res) => {
 
 const getApprovedDoctorAppointments = async (req, res) => {
   try {
-    const doctor = await User.findOne({
-      _id: req.body.userId,
+    const doctorId = req.body.userId;
+
+    const appointments = await Appointment.find({
+      doctorId: doctorId,
+      status: "approved",
     });
-    const appointments = await Appointment.find({ status: "approved" });
+
     res.status(200).send({
       status: true,
       data: appointments,
@@ -58,6 +61,8 @@ const getApprovedDoctorAppointments = async (req, res) => {
   } catch (error) {
     res.status(500).send({
       status: false,
+      message: "An error occurred while fetching the appointments.",
+      error: error.message,
     });
   }
 };
@@ -149,14 +154,14 @@ const changeAppointmentStatus = async (req, res) => {
     });
     const userId = appointment.userId;
 
-    const user = await StudentUsers.findOne({ _id: userId });
+    const user = await User.findOne({ _id: userId });
 
-    // const unSeenNotifications = user.unSeenNotifications;
-    // unSeenNotifications.push({
-    //   type: "appointment-status-change",
-    //   message: `Your appointment has been ${status}`,
-    //   onClickPath: "/appointment",
-    // });
+    const unSeenNotifications = user.unSeenNotifications;
+    unSeenNotifications.push({
+      type: "appointment-status-change",
+      message: `Your appointment has been ${status}`,
+      onClickPath: "/appointment",
+    });
     await user.save();
     res.status(200).send({
       message: "Appointment status updated successfully.",

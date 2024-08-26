@@ -74,7 +74,7 @@ function Doctors() {
       name: "Picture",
       selector: (row) => (
         <img
-          src={`http://localhost:3000/profImages/${row.picture}`}
+          src={`http://localhost:3000/profImages/${row.img}`}
           alt=""
           width={50}
           height={50}
