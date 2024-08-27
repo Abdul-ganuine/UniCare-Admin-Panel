@@ -2,23 +2,25 @@ const { BadRequest } = require("../CustomErrors");
 const asyncWrapper = require("../MiddleWare/async");
 const ChatModel = require("../Models/ChatModel");
 const studentsApi = require("../Models/studentsApi");
-const studentUsers = require("../Models/studentUsers");
 const Users = require("../Models/Users");
 
 // find user function
 const findUserModel = async (userId) => {
-  let user = await studentUsers.findById(userId);
-  if (user) {
+  let user = await Users.findById(userId);
+
+  // if no user matches the userId
+  if (!user) {
+    return null;
+  }
+
+  if (user.role === "student") {
     const findDetails = await studentsApi.findOne({ id: user.student_id });
-    return { model: "studentUsers", user, findDetails };
+    return { user, findDetails };
+  } else {
+    return { user };
   }
 
-  user = await Users.findById(userId);
-  if (user) {
-    return { model: "Users", user };
-  }
-
-  return null; // User not found in either model
+  i;
 };
 
 const accessSingleChat = asyncWrapper(async (req, res) => {
@@ -27,22 +29,35 @@ const accessSingleChat = asyncWrapper(async (req, res) => {
 
   const participant = await findUserModel(userId);
 
-  // console.log(participant);
+  let details;
 
-  const details = {
-    username: participant.user.username,
-    img: participant.user.img,
-    online: participant.user.online,
-    lastSeen: participant.user.lastSeen,
-    fullname: `${participant.findDetails.surname} ${participant.findDetails.other_names}`,
-    year: participant.findDetails.year,
-    student_id: participant.findDetails.id,
-    contact: participant.findDetails.contact,
-    telecel: participant.findDetails.school_vodafone_number,
-    email: participant.findDetails.email,
-    hall: participant.findDetails.hall,
-    programme: participant.findDetails.program,
-  };
+  // i will work on the fullname side later when i get to campus
+  if (participant.user.role === "student") {
+    details = {
+      username: participant.user.username,
+      img: participant.user.img,
+      online: participant.user.online,
+      lastSeen: participant.user.lastSeen,
+      fullname: `${participant.findDetails.surname} ${participant.findDetails.other_names}`,
+
+      year: participant.findDetails.year,
+      student_id: participant.findDetails.id,
+      contact: participant.findDetails.contact,
+      telecel: participant.findDetails.school_vodafone_number,
+      email: participant.findDetails.email,
+      hall: participant.findDetails.hall,
+      programme: participant.findDetails.program,
+    };
+  } else {
+    details = {
+      username: participant.user.username,
+      img: participant.user.img,
+      online: participant.user.online,
+      lastSeen: participant.user.lastSeen,
+      fullname: `${participant.user.first_name} ${participant.user.last_name}`,
+      contact: participant.user.number,
+    };
+  }
 
   if (!userId) {
     throw new BadRequest(`no userId is provided`);
@@ -81,8 +96,4 @@ const sendMessage = asyncWrapper(async (req, res) => {
   res.status(200).send(chat);
 });
 
-const chatParticipant = asyncWrapper(async (req, res) => {
-  const { chatId } = req.body;
-  // console.log(chatId);
-});
-module.exports = { accessSingleChat, sendMessage, chatParticipant };
+module.exports = { accessSingleChat, sendMessage };

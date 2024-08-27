@@ -1,8 +1,6 @@
 const User = require("../Models/Users.js");
-const StudentUsers = require("../Models/studentUsers.js");
 const bcrypt = require("bcryptjs");
 const Appointment = require("../Models/AppointmentModel.js");
-const Student = require("../Models/studentUsers.js");
 
 const getAllDoctors = async (req, res) => {
   try {
@@ -29,7 +27,7 @@ const deleteDoctor = async (req, res) => {
 const getDoctorAppointments = async (req, res) => {
   try {
     const doctor = await User.findOne({
-      _id: req.body.userId,
+      _id: req.user.id,
     });
     const appointments = await Appointment.find({ doctorId: doctor._id });
     res.status(200).send({
@@ -48,7 +46,6 @@ const getDoctorAppointments = async (req, res) => {
 const getApprovedDoctorAppointments = async (req, res) => {
   try {
     const doctorId = req.body.userId;
-
     const appointments = await Appointment.find({
       doctorId: doctorId,
       status: "approved",
@@ -100,7 +97,7 @@ const updateUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const students = await StudentUsers.find({});
+    const students = await User.find({});
     res.json(students);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -169,6 +166,26 @@ const changeAppointmentStatus = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    const mongoose = require("mongoose");
+    const appointmentSchema = new mongoose.Schema({
+      doctorId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+      },
+      userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "StudentUsers",
+        required: true,
+      },
+      date: { type: Date, required: true },
+      time: { type: String, required: true },
+      status: { type: String, default: "pending" }, // e.g., 'pending', 'confirmed', 'canceled'
+      type: { type: String, required: true },
+    });
+
+    module.exports = mongoose.model("appointment", appointmentSchema);
+
     res.send({
       message: "Appointment status update failed.",
       status: false,

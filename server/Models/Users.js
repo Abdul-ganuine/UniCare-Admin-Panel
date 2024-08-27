@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -23,7 +24,7 @@ const UserSchema = new mongoose.Schema({
   },
 
   email: { type: String, unique: true },
-  password: { type: String, required: true, unique: true, select: false },
+  password: { type: String, required: true, unique: true },
   first_name: String,
   last_name: String,
   number: String,
@@ -44,7 +45,10 @@ const UserSchema = new mongoose.Schema({
     type: Array,
   },
 });
-
+UserSchema.pre("save", async function () {
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
 UserSchema.methods.createJwt = function () {
   return jwt.sign(
     { userId: this.student_id, username: this.username, id: this._id },

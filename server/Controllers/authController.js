@@ -45,7 +45,7 @@ const registerUser = async (req, res) => {
     }
 
     const picture = req.file ? req.file.filename : null;
-    console.log(picture);
+
     const user = await User.findOne({ email });
     if (user) {
       return res.status(200).json({
@@ -64,7 +64,7 @@ const registerUser = async (req, res) => {
     const userRole = role;
     const username = `Dr ${first_name} ${last_name}`;
 
-    const hashpassword = await bcrypt.hash(password, 10);
+    // const hashpassword = await bcrypt.hash(password, 10);
     const newUser = new User({
       first_name,
       number,
@@ -72,17 +72,30 @@ const registerUser = async (req, res) => {
       img: picture,
       last_name,
       role,
-      password: hashpassword,
+      password,
       timings: timeRange,
       specialization: speciality,
       username,
     });
 
     await newUser.save();
+
+    const savedUser = await User.findOne({ email });
+
+    if (!savedUser) {
+      return res
+        .status(500)
+        .json({ status: false, message: "User creation failed." });
+    }
+
+    const token = savedUser.createJwt();
+
+    res.cookie("token", token, { httpOnly: true, sameSite: "strict" });
     return res
       .status(200)
       .json({ status: true, message: "User Added Successfully", userRole });
   } catch (error) {
+    console.log(error);
     res
       .status(500)
       .json({ status: false, message: "Error adding user", error });
@@ -117,13 +130,16 @@ const login = async (req, res) => {
         .json({ status: false, message: "Incorrect password" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.KEY, {
-      expiresIn: "1d",
-    });
+    // const token = jwt.sign({ id: user._id }, process.env.KEY, {
+    //   expiresIn: "1d",
+    // });
+    const token = user.createJwt();
+    res.cookie("token", token, { httpOnly: true });
+    const userId = user._id;
     // res.cookie("token", token, { httpOnly: true, maxAge: 3600000 });
     return res
       .status(200)
-      .json({ status: true, message: "Login Successful", data: token });
+      .json({ status: true, message: "Login Successful", data: token, userId });
   } catch (error) {
     console.log(error);
     res.status(500).json({ status: false, message: "Error logging in", error });
@@ -163,8 +179,9 @@ const forgotPassword = async (req, res) => {
 };
 
 const getUserInfoById = async (req, res) => {
+  console.log(req.user);
   try {
-    const user = await User.findOne({ _id: req.body.userId });
+    const user = await User.findOne({ _id: req.user.id });
     if (!user) {
       return res
         .status(200)

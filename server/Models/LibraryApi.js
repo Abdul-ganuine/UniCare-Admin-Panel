@@ -7,7 +7,7 @@ const comment = new mongoose.Schema(
     text: String,
     createdBy: {
       type: mongoose.Types.ObjectId,
-      ref: "studentUsers",
+      ref: "User",
     },
   },
   { timestamps: true }
@@ -33,13 +33,13 @@ const LibrarySchema = new mongoose.Schema(
     ],
     accessLogs: [
       {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "studentUsers" },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         accessedAt: Date,
       },
     ],
     favorites: [
       {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "studentUsers" },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         accessedAt: Date,
       },
     ],
@@ -50,7 +50,7 @@ const LibrarySchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Types.ObjectId,
-      ref: "studentUsers",
+      ref: "User",
     },
     category: String,
   },

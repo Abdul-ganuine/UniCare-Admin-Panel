@@ -11,7 +11,7 @@ const {
 const multer = require("multer");
 const path = require("path");
 
-const middleware = require("../MiddleWare/authMiddleware.js");
+const middleware = require("../MiddleWare/StudentAuthMiddleWare.js");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {

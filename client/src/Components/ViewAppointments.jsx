@@ -18,9 +18,7 @@ function ViewAppointments() {
       const res = await axios.get(
         "http://localhost:3000/panel/getAppointmentsByDoctorId",
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          withCredentials: true,
         }
       );
       dispatch(hideLoading());
@@ -50,9 +48,7 @@ function ViewAppointments() {
         "http://localhost:3000/panel/changeAppointmentStatus",
         { appointmentId: record._id, status: status },
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          withCredentials: true,
         }
       );
       dispatch(hideLoading());

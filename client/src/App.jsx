@@ -62,7 +62,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-      <ToastContainer autoClose={1500} />
+      <ToastContainer autoClose={1500} pauseOnHover={false} />
     </div>
   );
 }

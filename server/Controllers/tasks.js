@@ -2,13 +2,13 @@ const asyncWrapper = require("../MiddleWare/async");
 const ChatModel = require("../Models/ChatModel");
 const LibraryApi = require("../Models/LibraryApi");
 const studentsApi = require("../Models/studentsApi");
-const studentUsers = require("../Models/studentUsers");
-const Profs = require("../Models/Users");
+
+const Users = require("../Models/Users");
 
 // get all the doctors and counsellors in the system
 const getAllHealthProfs = asyncWrapper(async (req, res) => {
   const searchQuery = req.query.search || "";
-  const profsList = await Profs.find({
+  const profsList = await Users.find({
     first_name: { $regex: searchQuery, $options: "i" },
   });
 
@@ -19,11 +19,10 @@ const getAllHealthProfs = asyncWrapper(async (req, res) => {
 const getCounsellors = asyncWrapper(async (req, res) => {
   const searchQuery = req.query.search || "";
 
-  const counsellors = await Profs.find({
+  const counsellors = await Users.find({
     role: "counsellor",
     first_name: { $regex: searchQuery, $options: "i" },
   });
-  console.log(counsellors);
 
   res.status(200).json(counsellors);
 });
@@ -32,7 +31,7 @@ const getCounsellors = asyncWrapper(async (req, res) => {
 const getDoctors = asyncWrapper(async (req, res) => {
   const searchQuery = req.query.search || "";
 
-  const doctors = await Profs.find({
+  const doctors = await Users.find({
     role: "doctor",
     first_name: { $regex: searchQuery, $options: "i" },
   });
@@ -45,8 +44,9 @@ const getUsers = asyncWrapper(async (req, res) => {
   const userid = req.user.id;
   const searchQuery = req.query.search || "";
 
-  const users = await studentUsers.find({
+  const users = await Users.find({
     _id: { $ne: userid },
+    // role: { $ne: "student" },
     username: { $regex: searchQuery, $options: "i" },
   });
 
@@ -59,13 +59,13 @@ const getUserDetails = asyncWrapper(async (req, res) => {
 
   const fetchDetails = await studentsApi.findOne({ id: userid });
 
-  const username = await studentUsers.findOne({ student_id: userid });
+  const details = await Users.findOne({ student_id: userid });
 
   res.status(200).json({
     fetchDetails,
-    username: username.username,
-    img: username.img,
-    _id: username._id,
+    username: details.username,
+    img: details.img,
+    _id: details._id,
   });
 });
 
@@ -111,13 +111,13 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
     img !== undefined &&
     img.trim() !== ""
   ) {
-    updateUsername = await studentUsers.findOneAndUpdate(
+    updateUsername = await Users.findOneAndUpdate(
       { student_id: userid },
       { username: username, img: img },
       { new: true }
     );
   } else {
-    updateUsername = await studentUsers.findOne({ student_id: userid });
+    updateUsername = await Users.findOne({ student_id: userid });
   }
 
   // updating the library resources profile images
@@ -131,7 +131,7 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
 
   // Update profile image and username in ChatModel
   await ChatModel.updateMany(
-    { "messages.sender": userid },
+    { "messages.sender": req.user.id },
     {
       $set: {
         "messages.$[elem].senderImg": img,
@@ -139,7 +139,7 @@ const updateUserDetails = asyncWrapper(async (req, res) => {
       },
     },
     {
-      arrayFilters: [{ "elem.sender": userid }],
+      arrayFilters: [{ "elem.sender": req.user.id }],
       new: true,
     }
   );
@@ -157,7 +157,7 @@ const uploadFile = asyncWrapper(async (req, res) => {
   const userid = req.user.userId;
   const imgToUpdate = req.file.filename;
 
-  const findUser = await studentUsers.findOneAndUpdate(
+  const findUser = await Users.findOneAndUpdate(
     {
       student_id: userid,
     },
@@ -172,7 +172,7 @@ const uploadFile = asyncWrapper(async (req, res) => {
 const postResource = asyncWrapper(async (req, res) => {
   const userId = req.user.id;
   const likes = 0;
-  const getPoster = await studentUsers.findOne({ _id: userId });
+  const getPoster = await Users.findOne({ _id: userId });
 
   const { img, vid, pdf, aud, title, catClick, desc } = req.body;
   const postResource = await LibraryApi.create({
@@ -209,6 +209,7 @@ const getLibraryResources = asyncWrapper(async (req, res) => {
   const accessedResources = await LibraryApi.find({
     "accessLogs.userId": userId,
   });
+
   // Filter and map to only include access logs for the given user
   const userAccessLogs = accessedResources.flatMap((resource) =>
     resource.accessLogs
@@ -252,24 +253,6 @@ const removeAccessLog = asyncWrapper(async (req, res) => {
 
   // Save the updated resource
   await resource.save();
-
-  // // Find all resources that have been accessed by the user
-  // const accessedResources = await LibraryApi.find({
-  //   "accessLogs.userId": userId,
-  // });
-
-  // // Filter and map to only include access logs for the given user
-  // const userAccessLogs = accessedResources.flatMap((resource) =>
-  //   resource.accessLogs
-  //     .filter((log) => log.userId.toString() === userId.toString())
-  //     .map((log) => ({
-  //       resourceId: resource._id,
-  //       title: resource.title,
-  //       time: resource.createdAt,
-  //     }))
-  // );
-
-  // res.status(200).json({ recentAccessed: userAccessLogs });
 });
 
 // post comments
@@ -277,11 +260,10 @@ const postComments = asyncWrapper(async (req, res) => {
   const userId = req.user.id;
   const { comments, _id } = req.body;
 
-  const findUser = await studentUsers.findOne({ _id: userId });
+  const findUser = await Users.findOne({ _id: userId });
   const name = findUser.username;
   const commentProf = findUser.img;
   const createdBy = userId;
-  // const timeStamp = new Date();
 
   // New comment object
   const newComment = {
@@ -311,11 +293,7 @@ const likes = asyncWrapper(async (req, res) => {
   }
 
   // Check if the user has already liked this resource
-
-  // Check if the user has already liked this resource
   const userHasLiked = resource.likedBy.includes(userId);
-
-  console.log(userHasLiked);
 
   if (userHasLiked) {
     // User has liked, so we need to unlike

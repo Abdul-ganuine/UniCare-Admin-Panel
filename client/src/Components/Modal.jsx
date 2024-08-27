@@ -39,8 +39,10 @@ function Modal() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        withCredentials: true,
       })
       .then((res) => {
+        console.log(res.data);
         if (res.data.status) {
           dispatch(hideLoading());
           toast.success(res.data.message);

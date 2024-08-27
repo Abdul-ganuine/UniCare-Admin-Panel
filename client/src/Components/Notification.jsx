@@ -20,9 +20,7 @@ function Notification() {
         "http://localhost:3000/api/auth/mark-all-notifications-as-seen",
         { id: user.id },
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          withCredentials: true,
         }
       );
       dispatch(hideLoading());
@@ -44,9 +42,7 @@ function Notification() {
         "http://localhost:3000/api/auth/delete-all-notifications",
         { id: user.id },
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          withCredentials: true,
         }
       );
       dispatch(hideLoading());

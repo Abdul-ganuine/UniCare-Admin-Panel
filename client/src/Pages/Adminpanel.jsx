@@ -22,9 +22,7 @@ function Adminpanel() {
         "http://localhost:3000/api/auth/getDataByID",
         {},
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          withCredentials: true,
         }
       );
     } catch (error) {

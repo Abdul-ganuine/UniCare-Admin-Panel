@@ -12,7 +12,7 @@ const {
   changeAppointmentStatus,
   getApprovedDoctorAppointments,
 } = require("./../controllers/doctorController.js");
-const middleware = require("../MiddleWare/authMiddleware.js");
+const middleware = require("../MiddleWare/StudentAuthMiddleWare.js");
 
 /*Api for fetching all doctor */
 router.route("/getDoctors").get(getAllDoctors);

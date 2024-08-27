@@ -1,42 +1,44 @@
 const asyncWrapper = require("../MiddleWare/async");
 const { BadRequest, Unauthenticated } = require("../CustomErrors");
 const studentSchema = require("../Models/studentsApi");
-const studentUsersSchema = require("../Models/studentUsers");
+const Users = require("../Models/Users");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const register = asyncWrapper(async (req, res) => {
-  const { username, password, email, student_id, staff_id, status } = req.body;
+  const { username, password, email, student_id, status } = req.body;
 
-  if (status === "student") {
-    if (!username || !password || !email || !student_id) {
-      throw new BadRequest(`please fill all the fields`);
-    }
-
-    const findStudent = await studentSchema.findOne({ id: student_id });
-
-    if (!findStudent) {
-      throw new Unauthenticated(
-        "only students with valid credentials can access this service"
-      );
-    }
-
-    const user = await studentUsersSchema.create({
-      username,
-      password,
-      email,
-      student_id,
-    });
-
-    const token = user.createJwt();
-    res.cookie("token", token, { httpOnly: true, sameSite: "strict" });
-
-    res.status(200).json({
-      username: user.username,
-      student_id: user.student_id,
-      _id: user._id,
-    });
+  if (!username || !password || !email || !student_id) {
+    throw new BadRequest(`please fill all the fields`);
   }
+
+  const findStudent = await studentSchema.findOne({ id: student_id });
+
+  if (!findStudent) {
+    throw new Unauthenticated(
+      "only students with valid credentials can access this service"
+    );
+  }
+
+  // const salt = await bcrypt.genSalt(10);
+  // const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = await Users.create({
+    username,
+    password: hashedPassword,
+    email,
+    student_id,
+    role: status,
+  });
+
+  const token = user.createJwt();
+  res.cookie("token", token, { httpOnly: true, sameSite: "strict" });
+
+  res.status(200).json({
+    username: user.username,
+    student_id: user.student_id,
+    _id: user._id,
+  });
 });
 
 const login = asyncWrapper(async (req, res) => {
@@ -46,12 +48,10 @@ const login = asyncWrapper(async (req, res) => {
     throw new BadRequest(`please fill all the fields`);
   }
 
-  const user = await studentUsersSchema.findOne({ student_id });
+  const user = await Users.findOne({ student_id });
 
   if (!user) {
-    throw new Unauthenticated(
-      "only students with valid credentials can access this service"
-    );
+    throw new Unauthenticated("invalid credentials");
   }
 
   const comparePassword = bcrypt.compare(password, user.password);
@@ -75,7 +75,7 @@ const logOut = asyncWrapper(async (req, res) => {
   const { _id } = req.body;
 
   try {
-    const user = await studentUsersSchema.findByIdAndUpdate(
+    const user = await Users.findByIdAndUpdate(
       _id,
       {
         online: false,
@@ -98,7 +98,7 @@ const fetchToken = asyncWrapper(async (req, res) => {
   }
 
   const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  const user = await studentUsersSchema.findOne({ username: decoded.username });
+  const user = await Users.findOne({ username: decoded.username });
 
   if (!user) {
     throw new Unauthenticated("authentication failed");

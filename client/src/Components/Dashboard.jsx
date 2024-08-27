@@ -30,9 +30,8 @@ function Dashboard() {
       const res = await axios.get(
         "http://localhost:3000/panel/getApprovedAppointments",
         {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
+          
+          withCredentials: true,
         }
       );
       dispatch(hideLoading());

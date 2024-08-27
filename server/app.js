@@ -11,21 +11,22 @@ const notFound = require("./MiddleWare/notFound");
 const authRoute = require("./routes/studentSideAuth");
 const tasks = require("./routes/tasks");
 const chatRoute = require("./routes/chats");
+const appointmentRoute = require("./routes/appointments");
 const authMiddleWare = require("./MiddleWare/StudentAuthMiddleWare");
 const { uploadFile, postResource } = require("./Controllers/tasks");
 const errorHandlerMiddleWare = require("./MiddleWare/errorHandler");
 const connectDb = require("./Database/connectDb");
 const cookies = require("cookie-parser");
-const studentUsers = require("./Models/studentUsers");
+const Users = require("./Models/Users.js");
 
 // the professionals side routers
 const authRouter = require("./routes/auth.js");
 const doctorRouter = require("./routes/doctor.js");
 const counsellorRouter = require("./routes/counsellor.js");
-
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -48,7 +49,7 @@ io.on("connection", (socket) => {
     socket.userId = userData; //
 
     // Update the user's status to online in the database and reset `hasLoggedOut`
-    await studentUsers.findByIdAndUpdate(userData, {
+    await Users.findByIdAndUpdate(userData, {
       online: true,
       hasLoggedOut: false,
     });
@@ -59,11 +60,11 @@ io.on("connection", (socket) => {
     if (socket.userId) {
       try {
         // Check if the user has already logged out
-        const user = await studentUsers.findById(socket.userId);
+        const user = await Users.findById(socket.userId);
 
         if (user && !user.hasLoggedOut) {
           // If the user hasn't logged out, update the lastSeen and online status
-          await studentUsers.findByIdAndUpdate(
+          await Users.findByIdAndUpdate(
             socket.userId,
             {
               online: false,
@@ -186,6 +187,11 @@ app.use("/panel", counsellorRouter);
 app.use("/knust.students/wellnesshub/auth", authRoute);
 app.use("/knust.students/wellnesshub/tasks", authMiddleWare, tasks);
 app.use("/knust.students/wellnesshub/chats", authMiddleWare, chatRoute);
+app.use(
+  "/knust.students/wellnesshub/appointments",
+  authMiddleWare,
+  appointmentRoute
+);
 
 // the file api requests here
 app.patch("/upload", authMiddleWare, upload.single("profImage"), uploadFile);
@@ -246,13 +252,27 @@ app.use(errorHandlerMiddleWare);
 
 PORT = process.env.PORT || 5000;
 
+// const start = async () => {
+//   try {
+//     await connectDb(process.env.MONGODB_URI);
+//     server.listen(PORT, () => console.log(`app listening at port ${PORT}...`));
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+// start();
 const start = async () => {
   try {
     await connectDb(process.env.MONGODB_URI);
-    server.listen(PORT, () => console.log(`app listening at port ${PORT}...`));
+    console.log(`Connected to the database...`);
+    // Remove server.listen(PORT, ...) because Vercel assigns the port automatically
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 
+// Start the application
 start();
+
+module.exports = server;

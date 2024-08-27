@@ -16,15 +16,22 @@ function Login() {
     e.preventDefault();
     dispatch(showLoading());
     axios
-      .post("http://localhost:3000/api/auth/login", {
-        email,
-        password,
-      })
+      .post(
+        "http://localhost:3000/api/auth/login",
+        {
+          email,
+          password,
+        },
+        { withCredentials: true }
+      )
+
       .then((res) => {
         dispatch(hideLoading());
         if (res.data.status) {
           toast.success(res.data.message);
+          console.log(res.data.data);
           localStorage.setItem("token", res.data.data);
+          localStorage.setItem("userId", res.data.userId);
           navigate("/panel");
         } else {
           toast.error(res.data.message);

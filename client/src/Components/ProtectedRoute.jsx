@@ -17,9 +17,7 @@ function ProtectedRoute({ children }) {
         "http://localhost:3000/api/auth/getDataByID",
         { token: localStorage.getItem("token") },
         {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          withCredentials: true,
         }
       );
       if (response.data.status) {

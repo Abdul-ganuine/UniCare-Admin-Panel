@@ -25,7 +25,9 @@ function EditModal() {
   useEffect(() => {
     dispatch(showLoading());
     axios
-      .get(`http://localhost:3000/panel/UserInfo/${user?.id}`)
+      .get(`http://localhost:3000/panel/UserInfo/${user?.id}`, {
+        withCredentials: true,
+      })
       .then((result) => {
         const data = result.data;
         setFirstName(data.first_name);

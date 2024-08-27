@@ -15,11 +15,19 @@ import { useDispatch } from "react-redux";
 import "./Sidebar.css";
 import { clearUser } from "../redux/userSlice";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Sidebar({ isOpen, role }) {
+  const userId = localStorage.getItem("userId");
   const dispath = useDispatch();
   const navigate = useNavigate();
-  function handleLogOut() {
+  async function handleLogOut() {
+    const url = "http://localhost:3000/knust.students/wellnesshub/auth/logout";
+    const response = await axios.post(
+      url,
+      { _id: userId },
+      { withCredentials: true }
+    );
     dispath(clearUser());
     localStorage.clear();
     navigate("/login");
